@@ -34,24 +34,35 @@ class _BatchListScreenState extends State<BatchListScreen> {
           ),
         ],
       ),
-      body: BlocBuilder<BatchBloc, BatchState>(
-        builder: (context, state) {
-          if (state is BatchLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is BatchLoaded) {
-            if (state.batches.isEmpty) {
-              return const Center(child: Text('No batches available.'));
-            }
-            return ListView.builder(
-              itemCount: state.batches.length,
-              itemBuilder: (context, index) {
-                return BatchCard(batch: state.batches[index]);
-              },
+      body: BlocListener<BatchBloc, BatchState>(
+        listener: (context, state) {
+          if (state is BatchError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
             );
-          } else {
-            return const Center(child: Text('Failed to load batches.'));
           }
         },
+        child: BlocBuilder<BatchBloc, BatchState>(
+          builder: (context, state) {
+            if (state is BatchLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is BatchLoaded) {
+              if (state.batches.isEmpty) {
+                return const Center(child: Text('No batches available.'));
+              }
+              return ListView.builder(
+                itemCount: state.batches.length,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
+                itemBuilder: (context, index) {
+                  return BatchCard(batch: state.batches[index]);
+                },
+              );
+            } else {
+              return const Center(child: Text('Failed to load batches.'));
+            }
+          },
+        ),
       ),
     );
   }
