@@ -10,14 +10,14 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Home'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              // context.read<AuthBloc>().add(AuthLogoutEvent());
-              // Navigator.pushNamedAndRemoveUntil(
-              //     context, '/', (Route<dynamic> route) => false);
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.logout),
+          //   onPressed: () {
+          // context.read<AuthBloc>().add(AuthLogoutEvent());
+          // Navigator.pushNamedAndRemoveUntil(
+          //     context, '/', (Route<dynamic> route) => false);
+          //   },
+          // ),
         ],
       ),
       body: GridView.count(
