@@ -28,6 +28,9 @@ class Batch {
   @HiveField(7)
   List<String> students;
 
+  @HiveField(8)
+  Map<String, TimeRange> schedule;
+
   Batch({
     required this.name,
     required this.course,
@@ -37,5 +40,17 @@ class Batch {
     required this.status,
     this.email = '',
     this.students = const [],
+    this.schedule = const {},
   });
+}
+
+@HiveType(typeId: 1)
+class TimeRange {
+  @HiveField(0)
+  DateTime startTime;
+
+  @HiveField(1)
+  DateTime endTime;
+
+  TimeRange({required this.startTime, required this.endTime});
 }

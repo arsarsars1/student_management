@@ -1,6 +1,8 @@
+// batch_bloc.dart
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:studet_managment/models/batch.dart';
 import 'package:studet_managment/repositories/batch_repository.dart';
 
 import 'batch_event.dart';
@@ -10,11 +12,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   final BatchRepository batchRepository;
 
   List<Contact> _originalContacts = [];
+  Map<String, TimeRange> _selectedTimes = {};
+  Map<String, String> _validationErrors = {};
 
   BatchBloc(this.batchRepository) : super(BatchInitial()) {
     on<LoadBatchesEvent>(_onLoadBatches);
     on<AddBatchEvent>(_onAddBatch);
     on<LoadContacts>(_onLoadContacts);
+    on<SelectSchedule>(_onSelectSchedule);
     on<SelectContact>(_onSelectContact);
     on<RemoveContact>(_onRemoveContact);
     on<SearchContacts>(_onSearchContacts);
@@ -27,9 +32,21 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     emit(BatchLoading());
     try {
       final batches = batchRepository.getBatches();
-      emit(BatchLoaded(batches));
+      emit(BatchLoaded(
+        batches: batches,
+        contacts: state.contacts,
+        selectedContacts: state.selectedContacts,
+        selectedTimes: state.selectedTimes,
+        validationErrors: state.validationErrors,
+      ));
     } catch (e) {
-      emit(BatchError(e.toString()));
+      emit(BatchError(
+        message: e.toString(),
+        contacts: state.contacts,
+        selectedContacts: state.selectedContacts,
+        selectedTimes: state.selectedTimes,
+        validationErrors: state.validationErrors,
+      ));
     }
   }
 
@@ -48,11 +65,28 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         final contacts = await ContactsService.getContacts();
         _originalContacts = contacts.toList();
         emit(ContactLoaded(
-            contacts: _originalContacts, selectedContacts: const []));
+            contacts: _originalContacts,
+            selectedContacts: const [],
+            selectedTimes: state.selectedTimes,
+            validationErrors: state.validationErrors));
       }
     } else {
-      emit(const ContactLoaded(contacts: [], selectedContacts: []));
+      emit(ContactLoaded(
+          contacts: [],
+          selectedContacts: [],
+          selectedTimes: state.selectedTimes,
+          validationErrors: state.validationErrors));
     }
+  }
+
+  void _onSelectSchedule(SelectSchedule event, Emitter<BatchState> emit) {
+    _selectedTimes = event.schedule;
+    _validationErrors = event.validationErrors;
+    emit(ScheduleTime(
+        selectedTimes: _selectedTimes,
+        validationErrors: _validationErrors,
+        contacts: state.contacts,
+        selectedContacts: state.selectedContacts));
   }
 
   void _onSelectContact(SelectContact event, Emitter<BatchState> emit) {
@@ -62,7 +96,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           List<Contact>.from(currentState.selectedContacts)..add(event.contact);
       emit(ContactLoaded(
           contacts: currentState.contacts,
-          selectedContacts: updatedSelectedContacts));
+          selectedContacts: updatedSelectedContacts,
+          selectedTimes: state.selectedTimes,
+          validationErrors: state.validationErrors));
     }
   }
 
@@ -74,7 +110,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             ..remove(event.contact);
       emit(ContactLoaded(
           contacts: currentState.contacts,
-          selectedContacts: updatedSelectedContacts));
+          selectedContacts: updatedSelectedContacts,
+          selectedTimes: state.selectedTimes,
+          validationErrors: state.validationErrors));
     }
   }
 
@@ -90,7 +128,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           .toList();
       emit(ContactLoaded(
           contacts: filteredContacts,
-          selectedContacts: currentState.selectedContacts));
+          selectedContacts: currentState.selectedContacts,
+          selectedTimes: state.selectedTimes,
+          validationErrors: state.validationErrors));
     }
   }
 
@@ -99,7 +139,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     if (state is ContactLoaded) {
       emit(ContactLoaded(
           contacts: _originalContacts,
-          selectedContacts: (state as ContactLoaded).selectedContacts));
+          selectedContacts: (state as ContactLoaded).selectedContacts,
+          selectedTimes: state.selectedTimes,
+          validationErrors: state.validationErrors));
     }
   }
 
@@ -107,7 +149,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ClearSelectedContacts event, Emitter<BatchState> emit) {
     if (_originalContacts.isNotEmpty) {
       emit(ContactLoaded(
-          contacts: _originalContacts, selectedContacts: const []));
+          contacts: _originalContacts,
+          selectedContacts: const [],
+          selectedTimes: state.selectedTimes,
+          validationErrors: state.validationErrors));
     }
   }
 }

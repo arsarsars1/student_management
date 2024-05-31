@@ -1,11 +1,12 @@
+// add_batch_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:studet_managment/blocs/batch/batch_bloc.dart';
 import 'package:studet_managment/blocs/batch/batch_event.dart';
 import 'package:studet_managment/blocs/batch/batch_state.dart';
+import 'package:studet_managment/models/batch.dart';
 import 'package:studet_managment/widgets/contact_widget.dart';
-
-import '../models/batch.dart';
+import 'package:studet_managment/widgets/time_picker_widget.dart';
 
 class AddBatchScreen extends StatefulWidget {
   const AddBatchScreen({super.key});
@@ -218,6 +219,16 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                     ),
                     const SizedBox(height: 12),
                     const Text(
+                      'Schedule *',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const TimePickerWidget(),
+                    const SizedBox(height: 12),
+                    const Text(
                       'Add Students *',
                       style: TextStyle(
                         color: Colors.black,
@@ -289,16 +300,20 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            var selectedContacts = context
-                                .read<BatchBloc>()
-                                .state
-                                .selectedContacts
+                            var state = context.read<BatchBloc>().state;
+
+                            var selectedContacts = state.selectedContacts
                                 .map((contact) => contact.displayName ?? '')
                                 .toList();
+
+                            var schedule = state.selectedTimes;
+                            var validationErrors = state.validationErrors;
 
                             FocusScope.of(context).unfocus();
                             if (_formKey.currentState!.validate() &&
                                 selectedContacts.isNotEmpty &&
+                                validationErrors.isEmpty &&
+                                schedule.isNotEmpty &&
                                 course.isNotEmpty &&
                                 subject.isNotEmpty &&
                                 status.isNotEmpty) {
@@ -312,16 +327,24 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                                 status: status,
                                 email: emailController.text,
                                 students: selectedContacts,
+                                schedule: schedule,
                               );
                               context
                                   .read<BatchBloc>()
                                   .add(AddBatchEvent(newBatch));
                               Navigator.pop(context);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text("Fill the field to continue")));
+                              if (validationErrors.isNotEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Start time must be before end time")));
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Fill the field to continue")));
+                              }
                             }
                           },
                           child: const Text(

@@ -1,15 +1,28 @@
+// batch_state.dart
 import 'package:contacts_service/contacts_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:studet_managment/models/batch.dart';
 
 abstract class BatchState extends Equatable {
-  const BatchState();
+  final List<Contact> contacts;
+  final List<Contact> selectedContacts;
+  final Map<String, TimeRange> selectedTimes;
+  final Map<String, String> validationErrors;
 
-  List<Contact> get contacts => [];
-  List<Contact> get selectedContacts => [];
+  const BatchState({
+    this.contacts = const [],
+    this.selectedContacts = const [],
+    this.selectedTimes = const {},
+    this.validationErrors = const {},
+  });
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [
+        contacts,
+        selectedContacts,
+        selectedTimes,
+        validationErrors,
+      ];
 }
 
 class BatchInitial extends BatchState {}
@@ -19,39 +32,61 @@ class BatchLoading extends BatchState {}
 class BatchLoaded extends BatchState {
   final List<Batch> batches;
 
-  const BatchLoaded(this.batches);
+  const BatchLoaded({
+    required this.batches,
+    super.contacts,
+    super.selectedContacts,
+    super.selectedTimes,
+    super.validationErrors,
+  });
 
   @override
-  List<Object> get props => [batches];
+  List<Object> get props => [
+        batches,
+        contacts,
+        selectedContacts,
+        selectedTimes,
+        validationErrors,
+      ];
 }
 
 class BatchError extends BatchState {
   final String message;
 
-  const BatchError(this.message);
+  const BatchError({
+    required this.message,
+    super.contacts,
+    super.selectedContacts,
+    super.selectedTimes,
+    super.validationErrors,
+  });
 
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [
+        message,
+        contacts,
+        selectedContacts,
+        selectedTimes,
+        validationErrors,
+      ];
 }
 
 class ContactInitial extends BatchState {}
 
 class ContactLoaded extends BatchState {
-  final List<Contact> _contacts;
-  final List<Contact> _selectedContacts;
-
   const ContactLoaded({
-    required List<Contact> contacts,
-    required List<Contact> selectedContacts,
-  })  : _contacts = contacts,
-        _selectedContacts = selectedContacts;
+    required super.contacts,
+    required super.selectedContacts,
+    super.selectedTimes,
+    super.validationErrors,
+  });
+}
 
-  @override
-  List<Contact> get contacts => _contacts;
-
-  @override
-  List<Contact> get selectedContacts => _selectedContacts;
-
-  @override
-  List<Object> get props => [_contacts, _selectedContacts];
+class ScheduleTime extends BatchState {
+  const ScheduleTime({
+    required super.selectedTimes,
+    required super.validationErrors,
+    super.contacts,
+    super.selectedContacts,
+  });
 }
