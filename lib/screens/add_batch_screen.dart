@@ -258,7 +258,6 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                           ),
                       ],
                     ),
-                    // const TimePickerWidget(),
                     const SizedBox(height: 12),
                     const Text(
                       'Add Students *',
