@@ -6,6 +6,7 @@ import 'package:studet_managment/blocs/batch/batch_event.dart';
 import 'package:studet_managment/blocs/batch/batch_state.dart';
 import 'package:studet_managment/models/batch.dart';
 import 'package:studet_managment/utils/extension.dart';
+import 'package:studet_managment/utils/utils.dart';
 import 'package:studet_managment/widgets/contact_widget.dart';
 
 class AddBatchScreen extends StatefulWidget {
@@ -273,7 +274,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                           (contact) {
                             return Stack(children: [
                               ContactWidget(
-                                name: contact.displayName ?? '',
+                                name: Utilities.checkName(contact),
                               ),
                               Positioned(
                                 right: 4,
@@ -334,7 +335,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                             var state = context.read<BatchBloc>().state;
 
                             var selectedContacts = state.selectedContacts
-                                .map((contact) => contact.displayName ?? '')
+                                .map((contact) => Utilities.checkName(contact))
                                 .toList();
 
                             FocusScope.of(context).unfocus();

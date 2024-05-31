@@ -2,6 +2,7 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:studet_managment/repositories/batch_repository.dart';
+import 'package:studet_managment/utils/utils.dart';
 
 import 'batch_event.dart';
 import 'batch_state.dart';
@@ -95,11 +96,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     if (state is ContactLoaded) {
       final currentState = state as ContactLoaded;
       final filteredContacts = currentState.contacts
-          .where((contact) =>
-              contact.displayName != null &&
-              contact.displayName!
-                  .toLowerCase()
-                  .contains(event.query.toLowerCase()))
+          .where((contact) => Utilities.checkName(contact)
+              .toLowerCase()
+              .contains(event.query.toLowerCase()))
           .toList();
       emit(ContactLoaded(
         contacts: filteredContacts,

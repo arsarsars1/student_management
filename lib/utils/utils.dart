@@ -1,7 +1,17 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class Utilities {
+  static String checkName(Contact contact) =>
+      (contact.displayName ?? '').isNotEmpty && contact.displayName != null
+          ? (contact.displayName ?? '')
+          : contact.emails != null && contact.emails!.isNotEmpty
+              ? contact.emails?.first.value ?? ""
+              : contact.phones != null && contact.phones!.isNotEmpty
+                  ? contact.phones?.first.value ?? ""
+                  : "";
+
   static Future<void> requestPermissionAndFetchContacts(BuildContext context,
       {required Function function}) async {
     PermissionStatus permissionStatus = await _getContactPermission();

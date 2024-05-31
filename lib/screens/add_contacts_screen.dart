@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:studet_managment/blocs/batch/batch_bloc.dart';
 import 'package:studet_managment/blocs/batch/batch_event.dart';
 import 'package:studet_managment/blocs/batch/batch_state.dart';
+import 'package:studet_managment/utils/utils.dart';
 
 class ContactsPage extends StatefulWidget {
   const ContactsPage({super.key});
@@ -79,7 +80,7 @@ class _ContactsPageState extends State<ContactsPage> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          contact.displayName ?? '',
+                                          Utilities.checkName(contact),
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w600,
@@ -109,7 +110,7 @@ class _ContactsPageState extends State<ContactsPage> {
                               contentPadding:
                                   const EdgeInsets.symmetric(horizontal: 8),
                               title: Text(
-                                contact.displayName ?? '',
+                                Utilities.checkName(contact),
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
