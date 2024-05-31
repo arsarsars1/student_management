@@ -25,13 +25,14 @@ class BatchAdapter extends TypeAdapter<Batch> {
       status: fields[5] as String,
       email: fields[6] as String,
       students: (fields[7] as List).cast<String>(),
+      schedule: (fields[8] as List).cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Batch obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class BatchAdapter extends TypeAdapter<Batch> {
       ..writeByte(6)
       ..write(obj.email)
       ..writeByte(7)
-      ..write(obj.students);
+      ..write(obj.students)
+      ..writeByte(8)
+      ..write(obj.schedule);
   }
 
   @override

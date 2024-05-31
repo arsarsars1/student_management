@@ -22,16 +22,6 @@ class LoadContacts extends BatchEvent {}
 
 class ClearSelectedContacts extends BatchEvent {}
 
-class SelectSchedule extends BatchEvent {
-  final Map<String, TimeRange> schedule;
-  final Map<String, String> validationErrors;
-
-  SelectSchedule(this.schedule, this.validationErrors);
-
-  @override
-  List<Object> get props => [schedule, validationErrors];
-}
-
 class SelectContact extends BatchEvent {
   final Contact contact;
 

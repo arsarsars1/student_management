@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:studet_managment/screens/batch_screen.dart';
-import 'package:studet_managment/utils/extension.dart';
 
 import '../models/batch.dart';
 
@@ -33,16 +32,13 @@ class BatchCard extends StatelessWidget {
               if (batch.schedule.isNotEmpty)
                 ListView.builder(
                     shrinkWrap: true,
+                    padding: EdgeInsets.zero,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: batch.schedule.length,
                     itemBuilder: (context, index) {
-                      final day = batch.schedule.keys.elementAt(index);
-                      final timeRange = batch.schedule[day]!;
                       return ListTile(
                         leading: const Icon(Icons.timer),
-                        title: Text(
-                            '$day: ${timeRange.startTime.format(context)} -'
-                            ' ${timeRange.endTime.format(context)}'),
+                        title: Text(batch.schedule[index]),
                       );
                     }),
               if (isDetails)

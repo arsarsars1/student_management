@@ -15,7 +15,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogoutEvent>(_onLogout);
   }
 
-  void _onLogin(AuthLoginEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onLogin(AuthLoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
       await authRepository.login(event.email, event.password);
@@ -25,7 +25,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onLogout(AuthLogoutEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onLogout(AuthLogoutEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
     await authRepository.logout();
     emit(AuthUnauthenticated());
   }

@@ -1,12 +1,12 @@
-// add_batch_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:studet_managment/blocs/batch/batch_bloc.dart';
 import 'package:studet_managment/blocs/batch/batch_event.dart';
 import 'package:studet_managment/blocs/batch/batch_state.dart';
 import 'package:studet_managment/models/batch.dart';
+import 'package:studet_managment/utils/extension.dart';
 import 'package:studet_managment/widgets/contact_widget.dart';
-import 'package:studet_managment/widgets/time_picker_widget.dart';
 
 class AddBatchScreen extends StatefulWidget {
   const AddBatchScreen({super.key});
@@ -21,6 +21,17 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
   final TextEditingController admissionFeeController = TextEditingController();
   final TextEditingController feesController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final Map<String, TimeRange> _selectedTimes = {};
+  final Map<String, String> _validationErrors = {};
+  final days = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ];
 
   String course = '';
   String subject = '';
@@ -226,7 +237,28 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const TimePickerWidget(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var day in days)
+                          ListTile(
+                            onTap: () => _pickTime(day),
+                            title: Text(day),
+                            subtitle: _validationErrors.containsKey(day)
+                                ? Text(
+                                    _validationErrors[day] ?? '',
+                                    style: const TextStyle(color: Colors.red),
+                                  )
+                                : _selectedTimes.containsKey(day)
+                                    ? Text(
+                                        "Start: ${_selectedTimes[day]!.startTime.format(context)}, End: ${_selectedTimes[day]!.endTime.format(context)}",
+                                      )
+                                    : null,
+                            trailing: const Icon(Icons.access_time),
+                          ),
+                      ],
+                    ),
+                    // const TimePickerWidget(),
                     const SizedBox(height: 12),
                     const Text(
                       'Add Students *',
@@ -306,14 +338,11 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                                 .map((contact) => contact.displayName ?? '')
                                 .toList();
 
-                            var schedule = state.selectedTimes;
-                            var validationErrors = state.validationErrors;
-
                             FocusScope.of(context).unfocus();
                             if (_formKey.currentState!.validate() &&
                                 selectedContacts.isNotEmpty &&
-                                validationErrors.isEmpty &&
-                                schedule.isNotEmpty &&
+                                _validationErrors.isEmpty &&
+                                _selectedTimes.isNotEmpty &&
                                 course.isNotEmpty &&
                                 subject.isNotEmpty &&
                                 status.isNotEmpty) {
@@ -327,14 +356,14 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                                 status: status,
                                 email: emailController.text,
                                 students: selectedContacts,
-                                schedule: schedule,
+                                schedule: convertScheduleToList(_selectedTimes),
                               );
                               context
                                   .read<BatchBloc>()
                                   .add(AddBatchEvent(newBatch));
                               Navigator.pop(context);
                             } else {
-                              if (validationErrors.isNotEmpty) {
+                              if (_validationErrors.isNotEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                         content: Text(
@@ -363,6 +392,53 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
         ),
       ),
     );
+  }
+
+  void _pickTime(String day) async {
+    final startTime = await _selectTime(context, "Select Start Time");
+    if (startTime != null) {
+      final endTime = await _selectTime(context, "Select End Time");
+      if (endTime != null) {
+        if (startTime.isBefore(endTime)) {
+          setState(() {
+            _selectedTimes[day] =
+                TimeRange(startTime: startTime, endTime: endTime);
+            _validationErrors.remove(day);
+          });
+        } else {
+          setState(() {
+            _validationErrors[day] = "Start time must be before end time";
+          });
+        }
+      }
+    }
+  }
+
+  List<String> convertScheduleToList(Map<String, TimeRange> selectedTimes) {
+    final DateFormat formatter = DateFormat.jm();
+
+    List<String> schedule = selectedTimes.entries.map((entry) {
+      String day = entry.key;
+      String startTime = formatter.format(entry.value.startTime);
+      String endTime = formatter.format(entry.value.endTime);
+      return "$day: $startTime - $endTime";
+    }).toList();
+
+    return schedule;
+  }
+
+  Future<DateTime?> _selectTime(BuildContext context, String label) async {
+    final TimeOfDay? timeOfDay = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      helpText: label,
+    );
+    if (timeOfDay != null) {
+      final now = DateTime.now();
+      return DateTime(
+          now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute);
+    }
+    return null;
   }
 
   String? validateNumber(String? value) {
