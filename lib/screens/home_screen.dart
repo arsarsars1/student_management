@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:studet_managment/blocs/auth/auth_bloc.dart';
 import 'package:studet_managment/blocs/auth/auth_event.dart';
+import 'package:studet_managment/widgets/card_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -23,30 +24,26 @@ class HomeScreen extends StatelessWidget {
       ),
       body: GridView.count(
         crossAxisCount: 2,
+        childAspectRatio: 1.5,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
         children: [
-          Card(
-            child: Center(
-              child: ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Students'),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Still under development')),
-                  );
-                },
-              ),
-            ),
+          CardWidget(
+            icon: Icons.person,
+            title: "Students",
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Still under development')),
+              );
+            },
           ),
-          Card(
-            child: Center(
-              child: ListTile(
-                leading: const Icon(Icons.school),
-                title: const Text('Batches'),
-                onTap: () {
-                  Navigator.pushNamed(context, '/batches');
-                },
-              ),
-            ),
+          CardWidget(
+            icon: Icons.school,
+            title: "Batches",
+            onTap: () {
+              Navigator.pushNamed(context, '/batches');
+            },
           ),
         ],
       ),

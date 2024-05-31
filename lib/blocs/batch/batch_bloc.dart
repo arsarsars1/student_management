@@ -35,6 +35,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   Future<void> _onAddBatch(
       AddBatchEvent event, Emitter<BatchState> emit) async {
+    emit(BatchLoading());
     await batchRepository.addBatch(event.batch);
     add(LoadBatchesEvent());
   }
