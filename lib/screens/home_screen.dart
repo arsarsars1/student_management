@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:studet_managment/blocs/auth/auth_bloc.dart';
-import 'package:studet_managment/blocs/auth/auth_event.dart';
 import 'package:studet_managment/widgets/card_widget.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -16,9 +13,9 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              context.read<AuthBloc>().add(AuthLogoutEvent());
-              Navigator.pushNamedAndRemoveUntil(
-                  context, '/', (Route<dynamic> route) => false);
+              // context.read<AuthBloc>().add(AuthLogoutEvent());
+              // Navigator.pushNamedAndRemoveUntil(
+              //     context, '/', (Route<dynamic> route) => false);
             },
           ),
         ],
